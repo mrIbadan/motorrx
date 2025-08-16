@@ -1,3 +1,23 @@
+'''
+    - Version 0.0.1
+    - Dependencies:    generate_quotes_df.py
+    - Example run
+        - 
+    # Determine 5% of the DataFrame
+    sample_size = int(len(quote_df) * 0.05)  # Calculate 5% of the DataFrame
+    sampled_quote_df = quote_df.sample(n=sample_size, random_state=42)  # Sample 5%
+    
+    # Get unique customer IDs from the sampled DataFrame
+    customer_ids = sampled_quote_df["customer_id"].unique()
+    
+    # Create policy data
+    policy_creator = PolicyDataCreator(sampled_quote_df)
+    %time policy_df = policy_creator.generate_policy_data(customer_ids)
+
+    (policy_df.head())
+
+'''
+
 import pandas as pd
 import numpy as np
 import uuid
