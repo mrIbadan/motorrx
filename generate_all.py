@@ -2,7 +2,7 @@
   - Version 0.0.1
   - Dependencies correct versions of quotes, policies and claims generation data (will fix this once testing is complete
   - Set the number of quotes you want, the % of policies as conversion rate (5% of quote data = 5% conversion rate etc) & set number of claims you want
-  - Download the UK Sample Postcode file seperately from 
+  - Download the UK Sample Postcode file seperately IF it fails from: 
     - https://drive.google.com/file/d/1YMWPJUlFDCm-EkjivaafcZNUUNyeIfsR/view?usp=drive_link
     - Run 
 
@@ -75,22 +75,39 @@ def google_drive_read(url, **kwargs):
         raise ValueError("Cannot extract file ID from URL. Check the format.")
     
     # Create direct download URL
-    download_url = f"https://drive.google.com/uc?id={file_id}"
+    download_url = f"https://drive.google.com/uc?id={file_id}&export=download"
     
-    # Download content with progress bar
-    file_content = gdown.download(download_url, output=None, quiet=False)
+    # Use a temporary file to store the downloaded content
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        file_path = temp_file.name
     
-    # Read into pandas
-    return pd.read_csv(io.StringIO(file_content), **kwargs)
+    # Download content to the temporary file
+    try:
+        gdown.download(download_url, output=file_path, quiet=False)
+        
+        # Read the temporary file into a pandas DataFrame
+        df = pd.read_csv(file_path, **kwargs)
+        
+    finally:
+        # Clean up by removing the temporary file
+        os.remove(file_path)
+    
+    return df
 
+# Define columns to read
+cols = ['pcd', 'country', 'region', 'admin_district']
 
 # Usage
-cols = ['pcd', 'country', 'region', 'admin_district']
-geo_df = google_drive_read(
-    'https://drive.google.com/file/d/1YMWPJUlFDCm-EkjivaafcZNUUNyeIfsR/view?usp=drive_link'#,
-    #usecols=cols
-)
-
+try:
+    geo_df = google_drive_read(
+        'https://drive.google.com/file/d/1YMWPJUlFDCm-EkjivaafcZNUUNyeIfsR/view?usp=drive_link',
+        usecols=cols
+    )
+    # Display the DataFrame
+    print(geo_df.head())
+    
+except ValueError as e:
+    print(f"An error occurred: {e}")
 class RawDataCreator:
     def __init__(self, geo_df: pd.DataFrame, seed: int = 42):
         self.seed = seed
