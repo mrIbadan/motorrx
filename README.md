@@ -4,9 +4,9 @@ Motor_Repo Data - Travel & Home may be added here
 Version - 0.01
 
 3 files
-quote_df
-policy_df
-claims_df
+quote_df,
+policy_df,
+claims_df,
 
 The common key for all three files is the "Customer_ID" key.
 
