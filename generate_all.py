@@ -2,7 +2,14 @@
   - Version 0.0.1
   - Dependencies correct versions of quotes, policies and claims generation data (will fix this once testing is complete
   - Set the number of quotes you want, the % of policies as conversion rate (5% of quote data = 5% conversion rate etc) & set number of claims you want
+  - Download the UK Sample Postcode file seperately from 
+    - https://drive.google.com/file/d/1YMWPJUlFDCm-EkjivaafcZNUUNyeIfsR/view?usp=drive_link
+    - Run 
 
+      cols = ['pcd', 'country', 'region', 'admin_district']
+      geo_df = pd.read_csv('path/to/postcodes_api.csv', usecols = cols)
+      geo_df = geo_df.dropna(subset=['country'])
+    
   - Useage
 
 n_quotes = 10000
