@@ -104,6 +104,7 @@ try:
         usecols=cols
     )
     # Display the DataFrame
+    geo_df = geo_df.dropna(subset=['country'])
     print(geo_df.head())
     
 except ValueError as e:
