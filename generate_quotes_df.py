@@ -33,23 +33,40 @@ def google_drive_read(url, **kwargs):
         raise ValueError("Cannot extract file ID from URL. Check the format.")
     
     # Create direct download URL
-    download_url = f"https://drive.google.com/uc?id={file_id}"
+    download_url = f"https://drive.google.com/uc?id={file_id}&export=download"
     
-    # Download content
-    file_content = gdown.download(download_url, output=None, quiet=True)
+    # Use a temporary file to store the downloaded content
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        file_path = temp_file.name
     
-    # Read into pandas
-    return pd.read_csv(io.StringIO(file_content), **kwargs)
+    # Download content to the temporary file
+    try:
+        gdown.download(download_url, output=file_path, quiet=False)
+        
+        # Read the temporary file into a pandas DataFrame
+        df = pd.read_csv(file_path, **kwargs)
+        
+    finally:
+        # Clean up by removing the temporary file
+        os.remove(file_path)
+    
+    return df
 
-
-# Example usage
+# Define columns to read
 cols = ['pcd', 'country', 'region', 'admin_district']
-geo_df = google_drive_read(
-    'https://drive.google.com/file/d/1YMWPJUlFDCm-EkjivaafcZNUUNyeIfsR/view?usp=drive_link'
-  #, usecols=cols
-)
-geo_df = geo_df.dropna(subset=['country'])
 
+# Usage
+try:
+    geo_df = google_drive_read(
+        'https://drive.google.com/file/d/1YMWPJUlFDCm-EkjivaafcZNUUNyeIfsR/view?usp=drive_link',
+        usecols=cols
+    )
+    # Display the DataFrame
+    print(geo_df.head())
+    
+except ValueError as e:
+    print(f"An error occurred: {e}")
+  
 # Generate Data
 
 import numpy as np
